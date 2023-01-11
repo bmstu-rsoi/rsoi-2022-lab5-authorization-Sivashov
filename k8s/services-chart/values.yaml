@@ -1,0 +1,34 @@
+privilegies:
+  service:
+    port: 8050
+    image:
+      name: sivashov/privilegies
+      version: "latest"
+    database:
+      name: postgres
+
+flights:
+  service:
+    port: 8060
+    image:
+      name: sivashov/flights
+      version: "latest"
+    database: 
+      name: postgres
+
+tickets:
+  service:
+    port: 8070
+    image:
+      name: sivashov/tickets
+      version: "latest"
+    database: 
+      name: postgres
+
+gateway:
+  service:
+    port: 8080
+    image:
+      name: sivashov/gateway
+      version: "latest"
+    isGateway: true

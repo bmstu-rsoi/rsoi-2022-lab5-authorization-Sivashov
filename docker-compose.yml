@@ -1,0 +1,71 @@
+version: "3"
+
+services:
+  
+  # конфиг для контейнера бд
+  # имя 'postgres' важно, т.к. в приложении когда мы ссылаемся
+  # на 'host: postgres' это значение маппируется на сеть на адрес этого контейнер
+  postgres:
+    #build: code/db/
+    image: postgres:13.2
+    container_name: postgres
+    restart: on-failure
+    #network_mode: host
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 'postgres'
+      POSTGRES_DATABASE: postgres
+    ports:
+      # стандартный для постгреса
+      - "5432:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+      - ./db-v1.sql:/docker-entrypoint-initdb.d/db-v1.sql
+  
+  gateway:
+    image: sivashov/gateway
+    restart: on-failure
+    build: src/gateway
+    ports:
+      - "8080:8080"
+    depends_on:
+      - tickets
+      - flights
+      - privilegies
+
+  tickets:
+    image: sivashov/tickets
+    restart: on-failure
+    build: src/tickets
+    ports:
+      - "8070:8070"
+    depends_on:
+      - postgres
+    links:
+      - postgres
+
+  flights:
+    image: sivashov/flights
+    restart: on-failure
+    build: src/flights
+    ports:
+      - "8060:8060"
+    depends_on:
+      - postgres
+    links:
+      - postgres
+
+
+  privilegies:
+    image: sivashov/privilegies
+    restart: on-failure
+    build: src/privileges
+    ports:
+      - "8050:8050"
+    depends_on:
+      - postgres
+    links:
+      - postgres
+
+volumes:
+  db-data:
